@@ -4,6 +4,8 @@ name: Publish Package to npmjs
 
 on:
   push:
+    tags:
+      - 'v*'
     branches:
       - master
 
@@ -11,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v2
@@ -21,6 +23,17 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - run: npm run build
-      - run: npm publish
+      - run: |
+          # 使用 npm version 命令更新版本号
+          git config user.name "zylucky"
+          git config user.email "zyluckying@163.com"
+          npm version patch -m "chore(release): bump version to %s"
+          # 如果你不想自动创建 Git 标签，可以注释掉上面的命令
+      - name: Push version bump to GitHub
+        run: |
+          git push
+      - name: Publish to npmjs
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
