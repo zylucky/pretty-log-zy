@@ -4,7 +4,7 @@ const prettyLog = require('../dist/prettyLog.js');
 
 describe('prettyLog', function() {
   it('should log a message', function() {
-    prettyLog.info('这是基础信息!');
+    prettyLog.info('这是测试信息!');
     assert.strictEqual(prettyLog, prettyLog);
   });
 });
