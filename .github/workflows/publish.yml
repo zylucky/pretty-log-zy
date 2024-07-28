@@ -1,38 +1,28 @@
-name: NPM Release
+name: Publish NPM Package
 
 on:
   push:
     branches:
-      - main
+      - main # 触发发布操作的分支，根据需要修改
 
 jobs:
-  release:
+  build-and-publish:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
-        registry-url: 'https://registry.npmjs.org'
+        node-version: '14' # 根据需要设置Node.js版本
 
     - name: Install dependencies
       run: npm ci
 
-    - name: Run build
-      run: npm run build
-      # 这个步骤取决于你的项目是否需要构建过程
-
-    - name: Run tests
-      run: npm run test
-      # 确保你的 package.json 中定义了 "test" 脚本
-
-    - name: Semantic Release
-      if: success() # 只有在测试通过后才执行发布
+    - name: Version and Publish
+      run: |
+        npm version patch # 这将更新版本号并创建一个git标签
+        git push --follow-tags origin main # 推送新版本和标签到远程仓库
+        npm publish
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: npx semantic-release
