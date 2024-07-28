@@ -27,7 +27,7 @@ jobs:
       # 这个步骤取决于你的项目是否需要构建过程
 
     - name: Run tests
-      run: npm test
+      run: npm run test
       # 确保你的 package.json 中定义了 "test" 脚本
 
     - name: Semantic Release
