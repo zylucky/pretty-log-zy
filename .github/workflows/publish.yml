@@ -16,22 +16,35 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
           node-version: '14.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-      - run: npm run build
-      - run: |
+      - name: Install dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
+      - name: Version bump and create tags
+        run: |
           # 使用 npm version 命令更新版本号
           git config user.name "zylucky"
           git config user.email "zyluckying@163.com"
-          npm version patch -m "chore(release): bump version to %s"
-          # 如果你不想自动创建 Git 标签，可以注释掉上面的命令
+          # 如果你不想自动创建 Git 标签，可以注释掉下面的命令
+          # npm version patch -m "chore(release): bump version to %s"
+          # 更新版本
+          npm version patch --no-git-tag-version
+          # 获取新版本号
+          VERSION=$(node -p "require('./package.json').version")
+          # 创建自定义格式的git标签
+          CUSTOM_TAG="pretty-log-zy@$VERSION"
+          git tag -a "$CUSTOM_TAG" -m "chore(release) $CUSTOM_TAG"
       - name: Push version bump to GitHub
         run: |
           git push
+          git push --tags
       - name: Publish to npmjs
         run: npm publish
         env:
